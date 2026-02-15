@@ -29,15 +29,15 @@ if "modo" not in st.session_state:
 
 # PANTALLA INICIAL
 if st.session_state.modo is None:
-    st.title("🛡️ SafeHelp Triple A")
+    st.title("🛡️ SafeHelp - Triple A")
     st.subheader("Elige tu versión")
 
     col1, col2 = st.columns(2)
 
-    if col1.button("🟢 Versión gratuita"):
+    if col1.button("Versión gratuita"):
         st.session_state.modo = "free"
 
-    if col2.button("💎 Versión premium"):
+    if col2.button("Versión premium"):
         st.session_state.modo = "premium"
 
     st.stop()
