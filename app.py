@@ -1,73 +1,109 @@
-# app.py
 import streamlit as st
 import pandas as pd
 from detector import analizar_mensaje
 
 st.set_page_config(page_title="SafeHelp", page_icon="🛡️")
-st.title("SafeHelp \U0001F6E1️ Triple A")
-st.subheader("Tu asistente inteligente contra estafas digitales")
 
-# Visual personalizado (verde, blanco, celeste dinámico)
+# ESTILO AZUL
 st.markdown("""
 <style>
-    .reportview-container {
-        background-color: #f0f8ff;
-    }
-    .sidebar .sidebar-content {
-        background-color: #e6f2ff;
-    }
+.stApp {
+    background-color: #0b1f3a;
+    color: white;
+}
+textarea, input {
+    background-color: #1c2e4a !important;
+    color: white !important;
+}
+button {
+    background-color: #3a7bd5 !important;
+    color: white !important;
+    border-radius: 10px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
+# Estado
+if "modo" not in st.session_state:
+    st.session_state.modo = None
+
+# PANTALLA INICIAL
+if st.session_state.modo is None:
+    st.title("🛡️ SafeHelp Triple A")
+    st.subheader("Elige tu versión")
+
+    col1, col2 = st.columns(2)
+
+    if col1.button("🟢 Versión gratuita"):
+        st.session_state.modo = "free"
+
+    if col2.button("💎 Versión premium"):
+        st.session_state.modo = "premium"
+
+    st.stop()
+
+#  BOTÓN REGRESAR
+if st.button("⬅️ Volver"):
+    st.session_state.modo = None
+    st.rerun()
+
+# INPUT
+st.title("🛡️ SafeHelp")
+mensaje = st.text_area("✉️ Escribe o pega el mensaje sospechoso:")
+
+# INICIALIZAR DATOS
 if "historial" not in st.session_state:
     st.session_state.historial = pd.DataFrame(columns=["Mensaje", "Nivel", "Consejo"])
 
-if "estadisticas" not in st.session_state:
-    st.session_state.estadisticas = {"alto": 0, "medio": 0, "bajo": 0}
+# =========================
+#  VERSIÓN GRATUITA
 
-mensaje = st.text_area("✉️ Escribe o pega el mensaje sospechoso:")
+if st.session_state.modo == "free":
+    st.subheader("Versión gratuita")
 
-col1, col2 = st.columns(2)
-
-if col1.button("🔍 Analizar mensaje"):
-    if mensaje.strip() == "":
-        st.warning("Por favor, ingresa un mensaje para analizar.")
-    else:
-        nivel, razones, consejo = analizar_mensaje(mensaje)
-        st.markdown(f"Resultado: {nivel}")
-        st.write("**Señales detectadas:**")
-        for r in razones:
-            st.write(f"- {r}")
-        st.info(f"**Consejo:** {consejo}")
-
-        nuevo = pd.DataFrame([[mensaje, nivel, consejo]], columns=["Mensaje", "Nivel", "Consejo"])
-        st.session_state.historial = pd.concat([st.session_state.historial, nuevo], ignore_index=True)
-
-        if "Alto" in nivel:
-            st.session_state.estadisticas["alto"] += 1
-        elif "medio" in nivel:
-            st.session_state.estadisticas["medio"] += 1
+    if st.button("🔍 Analizar mensaje"):
+        if mensaje.strip() == "":
+            st.warning("Escribe un mensaje")
         else:
-            st.session_state.estadisticas["bajo"] += 1
+            nivel, _, consejo = analizar_mensaje(mensaje)
 
-if col2.button("📤 Reportar mensaje anónimo"):
-    st.success("Gracias por tu reporte. Será considerado en estadísticas globales.")
+            # SOLO NIVEL + CONSEJO (NO razones)
+            st.success(f"Nivel detectado: {nivel}")
+            st.info(consejo)
 
-st.markdown("---")
-st.markdown("### 📊 Estadísticas acumuladas")
-st.write("**Mensajes analizados:**", sum(st.session_state.estadisticas.values()))
-st.write("- 🔴 Alto riesgo:", st.session_state.estadisticas["alto"])
-st.write("- 🟠 Riesgo medio:", st.session_state.estadisticas["medio"])
-st.write("- 🟢 Bajo riesgo:", st.session_state.estadisticas["bajo"])
+# =========================
+#  VERSIÓN PREMIUM
 
-st.markdown("---")
-st.markdown("### 🧾 Historial de análisis")
+elif st.session_state.modo == "premium":
+    st.subheader("Versión premium")
 
-# Búsqueda de mensajes
-busqueda = st.text_input("🔎 Buscar mensaje en historial")
+    col1, col2 = st.columns(2)
 
-if busqueda:
-    resultados = st.session_state.historial[st.session_state.historial["Mensaje"].str.contains(busqueda, case=False)]
-    st.dataframe(resultados)
-else:
+    if col1.button("🔍 Analizar mensaje"):
+        if mensaje.strip() == "":
+            st.warning("Escribe un mensaje")
+        else:
+            nivel, razones, consejo = analizar_mensaje(mensaje)
+
+            st.success(f"Nivel: {nivel}")
+
+            st.write("🔎 Señales detectadas:")
+            for r in razones:
+                st.write(f"- {r}")
+
+            st.info(f"Consejo: {consejo}")
+
+            nuevo = pd.DataFrame([[mensaje, nivel, consejo]],
+                                 columns=["Mensaje", "Nivel", "Consejo"])
+
+            st.session_state.historial = pd.concat(
+                [st.session_state.historial, nuevo],
+                ignore_index=True
+            )
+
+    if col2.button("📤 Reportar mensaje"):
+        st.success("Reporte enviado correctamente")
+
+    # 📊 HISTORIAL
+    st.markdown("### 📊 Historial")
     st.dataframe(st.session_state.historial)
