@@ -25,7 +25,7 @@ LOGO_B64 = img_to_base64("logo.png")  # ✅ tu logo debe llamarse EXACTO: logo.p
 # UI SETTINGS
 # =========================
 TOPBAR_TOP_PX = 24
-TOPBAR_HEIGHT_PX = 120
+TOPBAR_HEIGHT_PX = 130
 
 # 🔥 FIX INFALIBLE: el contenido se empuja con un "spacer" real (Streamlit no lo puede ignorar)
 SPACER_HEIGHT_PX = 190  # si aún tapa algo, sube a 210
