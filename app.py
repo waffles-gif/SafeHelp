@@ -19,13 +19,18 @@ def img_to_base64(img_path: str) -> str | None:
         return None
     return base64.b64encode(p.read_bytes()).decode("utf-8")
 
-LOGO_B64 = img_to_base64("logo.png")  # <-- tu logo debe llamarse logo.png
+LOGO_B64 = img_to_base64("logo.png")  # tu logo debe llamarse logo.png en la misma carpeta
+
+# =========================
+# UI SETTINGS (AJUSTA AQUÍ)
+# =========================
+TOPBAR_TOP_PX = 24          # qué tan abajo empieza el header
+TOPBAR_HEIGHT_PX = 120      # altura del header
+CONTENT_TOP_PADDING_PX = TOPBAR_TOP_PX + TOPBAR_HEIGHT_PX + 40  # 🔥 espacio seguro para que no tape nada
 
 # =========================
 # ESTILOS
 # =========================
-TOPBAR_HEIGHT_PX = 120  # altura del header fijo (ajústalo si quieres)
-
 st.markdown(
     f"""
 <style>
@@ -35,10 +40,10 @@ st.markdown(
   color:white;
 }}
 
-/* Contenedor principal: MÁS espacio arriba para que NO tape el header */
+/* Contenedor principal: espacio arriba para evitar que el header tape contenido */
 section.main > div.block-container{{
   max-width: 900px;
-  padding-top: 180px; /* 🔥 clave: evita que se esconda el título */
+  padding-top: {CONTENT_TOP_PADDING_PX}px;  /* 🔥 esto evita que se tape TODO */
   padding-bottom: 3rem;
 }}
 
@@ -80,10 +85,10 @@ label, .stMarkdown, .stTextInput label, .stTextArea label{{
   font-size: 0.95rem;
 }}
 
-/* HEADER FIJO (título izq + logo der) */
+/* HEADER FIJO */
 .topbar{{
   position: fixed;
-  top: 40px;              /* 🔥 lo baja un poco */
+  top: {TOPBAR_TOP_PX}px;
   left: 18px;
   right: 18px;
   height: {TOPBAR_HEIGHT_PX}px;
@@ -98,7 +103,7 @@ label, .stMarkdown, .stTextInput label, .stTextArea label{{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 18px;
+  padding: 14px 18px;
 }}
 
 .topbar-title{{
@@ -170,28 +175,36 @@ if "historial" not in st.session_state:
 if "reporte_log" not in st.session_state:
     st.session_state.reporte_log = []
 
-
 def guardar_historial(mensaje_txt: str, nivel: str, consejo: str):
     nuevo = pd.DataFrame([[mensaje_txt, nivel, consejo]], columns=["Mensaje", "Nivel", "Consejo"])
     st.session_state.historial = pd.concat([st.session_state.historial, nuevo], ignore_index=True)
-
 
 # =========================
 # PANTALLA INICIAL (ELEGIR VERSION)
 # =========================
 if st.session_state.modo is None:
+
+    # ✅ instrucciones (ya no se tapan porque el padding del container ya considera el header)
     st.markdown(
         """
-<div style="text-align:center; margin-top: 10px;">
-  <div style="font-size:16px; opacity:0.92; margin-bottom:18px;">
+<div style="text-align:center; margin-top: 0px; margin-bottom: 26px;">
+  <div style="font-size:16px; opacity:0.92;">
     💡 <b>¿Cómo usar SafeHelp?</b><br/>
     1) Copia un mensaje sospechoso<br/>
     2) Pégalo en la caja<br/>
     3) Presiona <b>Analizar</b><br/>
     4) Recibe alerta + consejo
   </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-  <h2 style="margin-top:18px; font-size:44px;">Elige tu versión</h2>
+    # ✅ título grande “elige tu versión”
+    st.markdown(
+        """
+<div style="text-align:center; margin-top: 0px;">
+  <h2 style="font-size:46px; margin-bottom:18px;">Elige tu versión</h2>
 </div>
 """,
         unsafe_allow_html=True,
@@ -206,10 +219,11 @@ if st.session_state.modo is None:
         st.session_state.modo = "premium"
         st.rerun()
 
+    # ✅ IG abajo (no tapado)
     st.markdown("---")
     st.markdown(
         """
-<div style='text-align:center; margin-top:14px;'>
+<div style='text-align:center; margin-top:16px;'>
   <p style='opacity:0.85; margin-bottom:10px;'>Síguenos en nuestras redes 💙</p>
   <a href="https://www.instagram.com/triplea_peru" target="_blank" style="text-decoration:none;">
     <button style="
@@ -227,6 +241,7 @@ if st.session_state.modo is None:
 """,
         unsafe_allow_html=True,
     )
+
     st.stop()
 
 # =========================
@@ -386,7 +401,7 @@ elif st.session_state.modo == "premium":
 st.markdown("---")
 st.markdown(
     """
-<div style='text-align:center; margin-top:14px;'>
+<div style='text-align:center; margin-top:16px;'>
   <p style='opacity:0.85; margin-bottom:10px;'>Síguenos en nuestras redes 💙</p>
   <a href="https://www.instagram.com/triplea_peru" target="_blank" style="text-decoration:none;">
     <button style="
