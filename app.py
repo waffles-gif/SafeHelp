@@ -19,14 +19,16 @@ def img_to_base64(img_path: str) -> str | None:
         return None
     return base64.b64encode(p.read_bytes()).decode("utf-8")
 
-LOGO_B64 = img_to_base64("logo.png")  # tu logo debe llamarse logo.png en la misma carpeta
+LOGO_B64 = img_to_base64("logo.png")  # ✅ tu logo debe llamarse EXACTO: logo.png (misma carpeta)
 
 # =========================
-# UI SETTINGS (AJUSTA AQUÍ)
+# UI SETTINGS
 # =========================
-TOPBAR_TOP_PX = 24          # qué tan abajo empieza el header
-TOPBAR_HEIGHT_PX = 120      # altura del header
-CONTENT_TOP_PADDING_PX = TOPBAR_TOP_PX + TOPBAR_HEIGHT_PX + 40  # 🔥 espacio seguro para que no tape nada
+TOPBAR_TOP_PX = 24
+TOPBAR_HEIGHT_PX = 120
+
+# 🔥 FIX INFALIBLE: el contenido se empuja con un "spacer" real (Streamlit no lo puede ignorar)
+SPACER_HEIGHT_PX = 190  # si aún tapa algo, sube a 210
 
 # =========================
 # ESTILOS
@@ -40,11 +42,11 @@ st.markdown(
   color:white;
 }}
 
-/* Contenedor principal: espacio arriba para evitar que el header tape contenido */
+/* Contenedor principal: lo dejamos sin padding-top porque lo controla el SPACER */
 section.main > div.block-container{{
-  max-width: 900px;
-  padding-top: {CONTENT_TOP_PADDING_PX}px;  /* 🔥 esto evita que se tape TODO */
-  padding-bottom: 3rem;
+  max-width: 900px !important;
+  padding-top: 0px !important;     /* ✅ important: Streamlit a veces pisa esto */
+  padding-bottom: 3rem !important;
 }}
 
 /* Inputs */
@@ -163,6 +165,9 @@ else:
         unsafe_allow_html=True,
     )
 
+# ✅ SPACER: esto es lo que evita que se TAPEN instrucciones / títulos / IG
+st.markdown(f"<div style='height:{SPACER_HEIGHT_PX}px;'></div>", unsafe_allow_html=True)
+
 # =========================
 # STATE
 # =========================
@@ -183,8 +188,6 @@ def guardar_historial(mensaje_txt: str, nivel: str, consejo: str):
 # PANTALLA INICIAL (ELEGIR VERSION)
 # =========================
 if st.session_state.modo is None:
-
-    # ✅ instrucciones (ya no se tapan porque el padding del container ya considera el header)
     st.markdown(
         """
 <div style="text-align:center; margin-top: 0px; margin-bottom: 26px;">
@@ -200,7 +203,6 @@ if st.session_state.modo is None:
         unsafe_allow_html=True,
     )
 
-    # ✅ título grande “elige tu versión”
     st.markdown(
         """
 <div style="text-align:center; margin-top: 0px;">
@@ -219,7 +221,6 @@ if st.session_state.modo is None:
         st.session_state.modo = "premium"
         st.rerun()
 
-    # ✅ IG abajo (no tapado)
     st.markdown("---")
     st.markdown(
         """
