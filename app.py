@@ -24,7 +24,7 @@ LOGO_B64 = img_to_base64("logo.png")  # <-- tu logo debe llamarse logo.png
 # =========================
 # ESTILOS
 # =========================
-TOPBAR_HEIGHT_PX = 86  # altura del header fijo (ajústalo si quieres)
+TOPBAR_HEIGHT_PX = 120  # altura del header fijo (ajústalo si quieres)
 
 st.markdown(
     f"""
@@ -38,7 +38,7 @@ st.markdown(
 /* Contenedor principal: MÁS espacio arriba para que NO tape el header */
 section.main > div.block-container{{
   max-width: 900px;
-  padding-top: {TOPBAR_HEIGHT_PX + 40}px; /* 🔥 clave: evita que se esconda el título */
+  padding-top: 180px; /* 🔥 clave: evita que se esconda el título */
   padding-bottom: 3rem;
 }}
 
@@ -83,7 +83,7 @@ label, .stMarkdown, .stTextInput label, .stTextArea label{{
 /* HEADER FIJO (título izq + logo der) */
 .topbar{{
   position: fixed;
-  top: 18px;              /* 🔥 lo baja un poco */
+  top: 40px;              /* 🔥 lo baja un poco */
   left: 18px;
   right: 18px;
   height: {TOPBAR_HEIGHT_PX}px;
