@@ -14,121 +14,123 @@ st.set_page_config(page_title="SafeHelp", page_icon="🛡️", layout="centered"
 # HELPERS
 # =========================
 def img_to_base64(img_path: str) -> str | None:
-    """Convierte una imagen local a base64 para usarla en HTML/CSS (sin depender de URLs)."""
     p = Path(img_path)
     if not p.exists():
         return None
-    data = p.read_bytes()
-    return base64.b64encode(data).decode("utf-8")
+    return base64.b64encode(p.read_bytes()).decode("utf-8")
 
-
-LOGO_B64 = img_to_base64("logo.png")  # <-- guarda tu logo como logo.png en la misma carpeta
+LOGO_B64 = img_to_base64("logo.png")  # <-- tu logo debe llamarse logo.png
 
 # =========================
-# ESTILOS (AZUL + HEADER FIJO + CENTRADO)
+# ESTILOS
 # =========================
+TOPBAR_HEIGHT_PX = 86  # altura del header fijo (ajústalo si quieres)
+
 st.markdown(
-    """
+    f"""
 <style>
 /* Fondo general */
-.stApp{
+.stApp{{
   background-color:#0b1f3a;
   color:white;
-}
+}}
 
-/* Contenedor centrado y sin espacio "desperdiciado" */
-section.main > div.block-container{
-  max-width: 820px;
-  padding-top: 6.2rem;  /* más espacio porque el header está fijo arriba */
+/* Contenedor principal: MÁS espacio arriba para que NO tape el header */
+section.main > div.block-container{{
+  max-width: 900px;
+  padding-top: {TOPBAR_HEIGHT_PX + 40}px; /* 🔥 clave: evita que se esconda el título */
   padding-bottom: 3rem;
-}
+}}
 
 /* Inputs */
-textarea, input, select, div[data-baseweb="select"] > div{
+textarea, input, select, div[data-baseweb="select"] > div{{
   background-color:#1c2e4a !important;
   color:white !important;
   border-radius:12px !important;
-}
+}}
 
 /* Labels */
-label, .stMarkdown, .stTextInput label, .stTextArea label{
+label, .stMarkdown, .stTextInput label, .stTextArea label{{
   color:white !important;
-}
+}}
 
 /* Botones */
-.stButton > button{
+.stButton > button{{
   background-color:#3a7bd5 !important;
   color:white !important;
   border-radius:12px !important;
   padding:0.65rem 1.2rem !important;
   border:0 !important;
-  font-weight:600 !important;
-}
-.stButton > button:active{
+  font-weight:700 !important;
+}}
+.stButton > button:active{{
   transform: scale(0.99);
-}
+}}
 
 /* Tarjetitas */
-.safe-card{
+.safe-card{{
   background: rgba(0,0,0,0.25);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 18px;
   padding: 18px 18px 6px 18px;
   margin-top: 16px;
-}
-.small-muted{
+}}
+.small-muted{{
   opacity: 0.85;
   font-size: 0.95rem;
-}
+}}
 
-/* HEADER FIJO (título a la izquierda + logo a la derecha) */
-.topbar{
+/* HEADER FIJO (título izq + logo der) */
+.topbar{{
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 74px;
-  background: rgba(0,0,0,0.18);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  z-index: 9999;
+  top: 18px;              /* 🔥 lo baja un poco */
+  left: 18px;
+  right: 18px;
+  height: {TOPBAR_HEIGHT_PX}px;
 
+  background: rgba(0,0,0,0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 22px;
-}
+  padding: 12px 18px;
+}}
 
-.topbar-title{
+.topbar-title{{
   font-size: 34px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.2px;
   margin: 0;
-  line-height: 1;
-}
+  line-height: 1.05;
+}}
 
-.topbar-sub{
+.topbar-sub{{
   font-size: 13px;
   opacity: 0.85;
   margin-top: 6px;
-}
+}}
 
-.logo-img{
-  width: 64px;
-  height: 64px;
+.logo-img{{
+  width: 62px;
+  height: 62px;
   object-fit: contain;
-  border-radius: 12px;
+  border-radius: 14px;
   background: rgba(255,255,255,0.06);
   padding: 8px;
   border: 1px solid rgba(255,255,255,0.10);
-}
+}}
 </style>
 """,
     unsafe_allow_html=True,
 )
 
 # =========================
-# HEADER HTML (si no hay logo.png, solo muestra el título)
+# HEADER (SIEMPRE)
 # =========================
 if LOGO_B64:
     st.markdown(
@@ -166,15 +168,13 @@ if "historial" not in st.session_state:
     st.session_state.historial = pd.DataFrame(columns=["Mensaje", "Nivel", "Consejo"])
 
 if "reporte_log" not in st.session_state:
-    # para MVP: guardamos reportes en memoria (no persistente)
     st.session_state.reporte_log = []
 
-# =========================
-# UTIL
-# =========================
+
 def guardar_historial(mensaje_txt: str, nivel: str, consejo: str):
     nuevo = pd.DataFrame([[mensaje_txt, nivel, consejo]], columns=["Mensaje", "Nivel", "Consejo"])
     st.session_state.historial = pd.concat([st.session_state.historial, nuevo], ignore_index=True)
+
 
 # =========================
 # PANTALLA INICIAL (ELEGIR VERSION)
@@ -182,15 +182,16 @@ def guardar_historial(mensaje_txt: str, nivel: str, consejo: str):
 if st.session_state.modo is None:
     st.markdown(
         """
-<div style="text-align:center; margin-top:10px;">
-  <div style="font-size:18px; opacity:0.9; margin-bottom:14px;">
+<div style="text-align:center; margin-top: 10px;">
+  <div style="font-size:16px; opacity:0.92; margin-bottom:18px;">
     💡 <b>¿Cómo usar SafeHelp?</b><br/>
     1) Copia un mensaje sospechoso<br/>
     2) Pégalo en la caja<br/>
     3) Presiona <b>Analizar</b><br/>
     4) Recibe alerta + consejo
   </div>
-  <h2 style="margin-top:18px;">Elige tu versión</h2>
+
+  <h2 style="margin-top:18px; font-size:44px;">Elige tu versión</h2>
 </div>
 """,
         unsafe_allow_html=True,
@@ -205,7 +206,6 @@ if st.session_state.modo is None:
         st.session_state.modo = "premium"
         st.rerun()
 
-    # Footer IG
     st.markdown("---")
     st.markdown(
         """
@@ -218,7 +218,7 @@ if st.session_state.modo is None:
         border:none;
         padding:10px 18px;
         border-radius:10px;
-        font-weight:800;
+        font-weight:900;
         cursor:pointer;">
         📸 Ir a Instagram
     </button>
@@ -227,11 +227,10 @@ if st.session_state.modo is None:
 """,
         unsafe_allow_html=True,
     )
-
     st.stop()
 
 # =========================
-# VOLVER (arriba)
+# VOLVER
 # =========================
 _, col_back = st.columns([5, 1])
 with col_back:
@@ -276,10 +275,8 @@ elif st.session_state.modo == "premium":
         unsafe_allow_html=True,
     )
 
-    # --- Análisis + Reporte en columnas
     colA, colB = st.columns([1, 1])
 
-    # ====== ANALISIS DETALLADO
     with colA:
         st.markdown("<div class='safe-card'>", unsafe_allow_html=True)
         st.markdown("#### 🔍 Análisis detallado")
@@ -289,7 +286,6 @@ elif st.session_state.modo == "premium":
                 st.warning("Por favor, pega un mensaje para analizar.")
             else:
                 nivel, razones, consejo = analizar_mensaje(mensaje)
-
                 st.success(f"Nivel: {nivel}")
 
                 st.write("**Señales detectadas:**")
@@ -300,16 +296,17 @@ elif st.session_state.modo == "premium":
                     st.write("- No se detectaron señales específicas.")
 
                 st.info(f"**Consejo:** {consejo}")
-
                 guardar_historial(mensaje, nivel, consejo)
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ====== REPORTE TIPO ENCUESTA
     with colB:
         st.markdown("<div class='safe-card'>", unsafe_allow_html=True)
         st.markdown("#### 📤 Reportar mensaje (anónimo)")
-        st.markdown("<div class='small-muted'>Esto ayuda a mejorar estadísticas y futuras detecciones.</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='small-muted'>Esto ayuda a mejorar estadísticas y futuras detecciones.</div>",
+            unsafe_allow_html=True,
+        )
 
         with st.form("reporte_form", clear_on_submit=True):
             plataforma = st.selectbox(
@@ -366,8 +363,6 @@ elif st.session_state.modo == "premium":
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("---")
-
-    # ====== HISTORIAL (PREMIUM)
     st.markdown("### 🧾 Historial de análisis")
 
     busqueda = st.text_input("🔎 Buscar en historial (premium)")
@@ -386,7 +381,7 @@ elif st.session_state.modo == "premium":
     )
 
 # =========================
-# FOOTER: Instagram
+# FOOTER IG
 # =========================
 st.markdown("---")
 st.markdown(
@@ -400,7 +395,7 @@ st.markdown(
         border:none;
         padding:10px 18px;
         border-radius:10px;
-        font-weight:800;
+        font-weight:900;
         cursor:pointer;">
         📸 Ir a Instagram
     </button>
