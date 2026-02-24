@@ -19,96 +19,154 @@ def img_to_base64(img_path: str):
         return None
     return base64.b64encode(p.read_bytes()).decode()
 
-LOGO_B64 = img_to_base64("logo.png")
+LOGO_B64 = img_to_base64("logo.png")  # ✅ asegúrate: logo.png en la misma carpeta que app.py
 
 # =========================
-# AJUSTES VISUALES
+# AJUSTES VISUALES (cambia solo aquí si quieres)
 # =========================
-TOPBAR_TOP = 55        # 🔥 mueve el header (ANTES 24)
-TOPBAR_HEIGHT = 120
-SPACER = 200           # 🔥 espacio para que no tape nada
+TOPBAR_TOP_PX = 55        # 🔥 baja/sube el header (SafeHelp - Triple A)
+TOPBAR_HEIGHT_PX = 120
+SPACER_HEIGHT_PX = 200    # 🔥 empuja el contenido para que nada quede tapado
+
+IG_URL = "https://www.instagram.com/triplea_peru"
 
 # =========================
-# ESTILOS
+# ESTILOS (AZUL + PRO)
 # =========================
-st.markdown(f"""
+st.markdown(
+    f"""
 <style>
+/* Fondo general */
 .stApp {{
-    background-color:#0b1f3a;
-    color:white;
+  background-color:#0b1f3a;
+  color:white;
 }}
 
+/* Contenedor centrado (sin padding-top, lo controla el spacer) */
 section.main > div.block-container {{
-    max-width: 900px !important;
-    padding-top: 0px !important;
+  max-width: 900px !important;
+  padding-top: 0px !important;
+  padding-bottom: 3rem !important;
 }}
 
+/* Inputs */
+textarea, input, select, div[data-baseweb="select"] > div {{
+  background-color:#1c2e4a !important;
+  color:white !important;
+  border-radius:12px !important;
+}}
+
+/* Labels */
+label, .stMarkdown, .stTextInput label, .stTextArea label {{
+  color:white !important;
+}}
+
+/* Botones */
+.stButton > button {{
+  background-color:#3a7bd5 !important;
+  color:white !important;
+  border-radius:12px !important;
+  padding:0.65rem 1.2rem !important;
+  border:0 !important;
+  font-weight:700 !important;
+}}
+.stButton > button:active {{
+  transform: scale(0.99);
+}}
+
+/* Tarjetitas */
+.safe-card {{
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 18px 18px 6px 18px;
+  margin-top: 16px;
+}}
+.small-muted {{
+  opacity: 0.85;
+  font-size: 0.95rem;
+}}
+
+/* HEADER FIJO */
 .topbar {{
-    position: fixed;
-    top: {TOPBAR_TOP}px;
-    left: 18px;
-    right: 18px;
-    height: {TOPBAR_HEIGHT}px;
+  position: fixed;
+  top: {TOPBAR_TOP_PX}px;
+  left: 18px;
+  right: 18px;
+  height: {TOPBAR_HEIGHT_PX}px;
 
-    background: rgba(0,0,0,0.25);
-    border-radius: 18px;
-    backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 18px;
-    z-index: 9999;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
 }}
 
 .topbar-title {{
-    font-size: 34px;
-    font-weight: 900;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  margin: 0;
+  line-height: 1.05;
 }}
 
 .topbar-sub {{
-    font-size: 13px;
-    opacity: 0.8;
+  font-size: 13px;
+  opacity: 0.85;
+  margin-top: 6px;
 }}
 
-.logo {{
-    width:60px;
-    border-radius:12px;
-}}
-
-.stButton > button {{
-    background-color:#3a7bd5 !important;
-    color:white !important;
-    border-radius:12px !important;
+.logo-img {{
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.10);
 }}
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # =========================
-# HEADER
+# HEADER (SIEMPRE)
 # =========================
 if LOGO_B64:
-    st.markdown(f"""
-    <div class="topbar">
-        <div>
-            <div class="topbar-title">🛡️ SafeHelp - Triple A</div>
-            <div class="topbar-sub">Tu asistente inteligente contra estafas digitales</div>
-        </div>
-        <img class="logo" src="data:image/png;base64,{LOGO_B64}">
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        f"""
+<div class="topbar">
+  <div>
+    <div class="topbar-title">🛡️ SafeHelp - Triple A</div>
+    <div class="topbar-sub">Tu asistente inteligente contra estafas digitales</div>
+  </div>
+  <img class="logo-img" src="data:image/png;base64,{LOGO_B64}" alt="Triple A logo" />
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 else:
-    st.markdown("""
-    <div class="topbar">
-        <div>
-            <div class="topbar-title">🛡️ SafeHelp - Triple A</div>
-            <div class="topbar-sub">Tu asistente inteligente contra estafas digitales</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        """
+<div class="topbar">
+  <div>
+    <div class="topbar-title">🛡️ SafeHelp - Triple A</div>
+    <div class="topbar-sub">Tu asistente inteligente contra estafas digitales</div>
+  </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-# 🔥 ESPACIADOR (CLAVE)
-st.markdown(f"<div style='height:{SPACER}px'></div>", unsafe_allow_html=True)
+# ✅ SPACER (evita que el header tape contenido)
+st.markdown(f"<div style='height:{SPACER_HEIGHT_PX}px;'></div>", unsafe_allow_html=True)
 
 # =========================
 # STATE
@@ -116,25 +174,71 @@ st.markdown(f"<div style='height:{SPACER}px'></div>", unsafe_allow_html=True)
 if "modo" not in st.session_state:
     st.session_state.modo = None
 
+if "historial" not in st.session_state:
+    st.session_state.historial = pd.DataFrame(columns=["Mensaje", "Nivel", "Consejo"])
+
+if "reporte_log" not in st.session_state:
+    st.session_state.reporte_log = []  # en memoria (demo)
+
 # =========================
-# PANTALLA INICIAL
+# UTIL
+# =========================
+def guardar_historial(mensaje_txt: str, nivel: str, consejo: str):
+    nuevo = pd.DataFrame([[mensaje_txt, nivel, consejo]], columns=["Mensaje", "Nivel", "Consejo"])
+    st.session_state.historial = pd.concat([st.session_state.historial, nuevo], ignore_index=True)
+
+def render_instagram_footer():
+    st.markdown("---")
+    st.markdown(
+        f"""
+<div style='text-align:center; margin-top:16px;'>
+  <p style='opacity:0.85; margin-bottom:10px;'>Síguenos en nuestras redes 💙</p>
+  <a href="{IG_URL}" target="_blank" style="text-decoration:none;">
+    <button style="
+        background-color:#E1306C;
+        color:white;
+        border:none;
+        padding:10px 18px;
+        border-radius:10px;
+        font-weight:900;
+        cursor:pointer;">
+        📸 Ir a Instagram
+    </button>
+  </a>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+# =========================
+# PANTALLA INICIAL (ELEGIR VERSION)
 # =========================
 if st.session_state.modo is None:
-
-    st.markdown("""
-    <div style="text-align:center;">
-    💡 <b>¿Cómo usar SafeHelp?</b><br>
-    1) Copia un mensaje sospechoso<br>
-    2) Pégalo en la caja<br>
-    3) Presiona Analizar<br>
+    st.markdown(
+        """
+<div style="text-align:center; margin-top: 0px; margin-bottom: 26px;">
+  <div style="font-size:16px; opacity:0.92;">
+    💡 <b>¿Cómo usar SafeHelp?</b><br/>
+    1) Copia un mensaje sospechoso<br/>
+    2) Pégalo en la caja<br/>
+    3) Presiona <b>Analizar</b><br/>
     4) Recibe alerta + consejo
-    </div>
-    """, unsafe_allow_html=True)
+  </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("<h1 style='text-align:center;'>Elige tu versión</h1>", unsafe_allow_html=True)
+    st.markdown(
+        """
+<div style="text-align:center; margin-top: 0px;">
+  <h2 style="font-size:46px; margin-bottom:18px;">Elige tu versión</h2>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
     c1, c2 = st.columns(2)
-
     if c1.button("Versión gratuita", use_container_width=True):
         st.session_state.modo = "free"
         st.rerun()
@@ -143,17 +247,167 @@ if st.session_state.modo is None:
         st.session_state.modo = "premium"
         st.rerun()
 
+    render_instagram_footer()
+    st.stop()
+
+# =========================
+# HEADER + VOLVER (dentro de la app)
+# =========================
+_, top_right = st.columns([5, 1])
+with top_right:
+    if st.button("⬅️ Volver", use_container_width=True):
+        st.session_state.modo = None
+        st.rerun()
+
+st.markdown("---")
+
+# =========================
+# INPUT MENSAJE
+# =========================
+mensaje = st.text_area("✉️ Escribe o pega el mensaje sospechoso:", height=160)
+
+# =========================
+# FREE
+# =========================
+if st.session_state.modo == "free":
+    st.subheader("Versión gratuita")
+    st.markdown(
+        "<div class='small-muted'>Incluye: nivel de riesgo + consejo. (Sin historial, sin reporte, sin detalles)</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("<div class='safe-card'>", unsafe_allow_html=True)
+    if st.button("🔍 Analizar mensaje", use_container_width=True):
+        if mensaje.strip() == "":
+            st.warning("Por favor, pega un mensaje para analizar.")
+        else:
+            nivel, _, consejo = analizar_mensaje(mensaje)
+            st.success(f"Nivel detectado: {nivel}")
+            st.info(consejo)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    render_instagram_footer()
+
+# =========================
+# PREMIUM
+# =========================
+elif st.session_state.modo == "premium":
+    st.subheader("Versión premium")
+    st.markdown(
+        "<div class='small-muted'>Incluye: análisis detallado + razones + historial + reporte (encuesta)</div>",
+        unsafe_allow_html=True,
+    )
+
+    # --- Análisis + Reporte en columnas
+    colA, colB = st.columns([1, 1])
+
+    # ====== ANALISIS DETALLADO
+    with colA:
+        st.markdown("<div class='safe-card'>", unsafe_allow_html=True)
+        st.markdown("#### 🔍 Análisis detallado")
+
+        if st.button("Analizar mensaje", use_container_width=True):
+            if mensaje.strip() == "":
+                st.warning("Por favor, pega un mensaje para analizar.")
+            else:
+                nivel, razones, consejo = analizar_mensaje(mensaje)
+
+                st.success(f"Nivel: {nivel}")
+
+                st.write("**Señales detectadas:**")
+                if razones:
+                    for r in razones:
+                        st.write(f"- {r}")
+                else:
+                    st.write("- No se detectaron señales específicas.")
+
+                st.info(f"**Consejo:** {consejo}")
+
+                guardar_historial(mensaje, nivel, consejo)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # ====== REPORTE TIPO ENCUESTA
+    with colB:
+        st.markdown("<div class='safe-card'>", unsafe_allow_html=True)
+        st.markdown("#### 📤 Reportar mensaje (anónimo)")
+        st.markdown(
+            "<div class='small-muted'>Esto ayuda a mejorar estadísticas y futuras detecciones.</div>",
+            unsafe_allow_html=True,
+        )
+
+        with st.form("reporte_form", clear_on_submit=True):
+            plataforma = st.selectbox(
+                "¿Dónde recibiste el mensaje?",
+                ["WhatsApp", "Instagram", "SMS", "Correo", "Facebook", "Otro"],
+            )
+
+            remitente = st.text_input(
+                "Número / cuenta / usuario (opcional)",
+                placeholder="Ej: +51 9XX XXX XXX o @cuenta",
+            )
+
+            tipo = st.multiselect(
+                "¿Qué intentaba hacer el mensaje?",
+                [
+                    "Pedir dinero/transferencia",
+                    "Pedir datos personales (DNI, clave, códigos)",
+                    "Mandar un enlace sospechoso",
+                    "Ofrecer premio/regalo",
+                    "Amenaza/extorsión",
+                    "Otro",
+                ],
+            )
+
+            clic = st.radio(
+                "¿Llegaste a hacer clic en un enlace o descargar algo?",
+                ["No", "Sí"],
+                horizontal=True,
+            )
+
+            monto = st.number_input(
+                "Si perdiste dinero, ¿cuánto aprox? (opcional)",
+                min_value=0.0,
+                step=1.0,
+            )
+
+            detalle = st.text_area("Pega el mensaje aquí (opcional)", height=100)
+
+            enviar = st.form_submit_button("✅ Enviar reporte")
+
+        if enviar:
+            st.session_state.reporte_log.append(
+                {
+                    "plataforma": plataforma,
+                    "remitente": remitente.strip(),
+                    "tipo": tipo,
+                    "clic": clic,
+                    "monto": float(monto),
+                    "detalle": detalle.strip(),
+                }
+            )
+            st.success("¡Gracias! Reporte enviado de forma anónima 💙")
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
     st.markdown("---")
 
-    st.markdown("""
-    <div style='text-align:center;'>
-    Síguenos en nuestras redes 💙<br><br>
-    <a href="https://www.instagram.com/triplea_peru" target="_blank">
-    <button style="background:#E1306C;color:white;border:none;padding:10px 18px;border-radius:10px;font-weight:bold;">
-    📸 Ir a Instagram
-    </button>
-    </a>
-    </div>
-    """, unsafe_allow_html=True)
+    # ====== HISTORIAL (PREMIUM)
+    st.markdown("### 🧾 Historial de análisis")
 
-    st.stop()
+    busqueda = st.text_input("🔎 Buscar en historial (premium)")
+    if busqueda.strip():
+        resultados = st.session_state.historial[
+            st.session_state.historial["Mensaje"].str.contains(busqueda, case=False, na=False)
+        ]
+        st.dataframe(resultados, use_container_width=True)
+    else:
+        st.dataframe(st.session_state.historial, use_container_width=True)
+
+    st.markdown(
+        "<div class='small-muted'>Reportes enviados (demo): "
+        f"<b>{len(st.session_state.reporte_log)}</b></div>",
+        unsafe_allow_html=True,
+    )
+
+    render_instagram_footer()
